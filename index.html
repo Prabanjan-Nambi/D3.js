@@ -46,131 +46,268 @@
             <div class="col-md-6">
                 <svg id="lineChart" width="100%" height="500px"></svg>
             </div>
+            <div class="col-md-6">
+                <div id="doughNutChart">
+                </div>
+            </div>
         </div>
-    </div>
-    <script>
-        /*d3.select('body').append('p').text('Test').style('color', 'red').style('color', function (d) {
-            //console.log(this);
-        })*/
+        <script>
+            /*d3.select('body').append('p').text('Test').style('color', 'red').style('color', function (d) {
+                //console.log(this);
+            })*/
 
-        //d3.select('#d3Div').transition().duration(1000).ease(d3.easeLinear).style('height', '500px').style('width', '500px');
+            //d3.select('#d3Div').transition().duration(1000).ease(d3.easeLinear).style('height', '500px').style('width', '500px');
 
-        /* var svg = d3.select("body")
-             .append("svg")
-             .attr("width", 500)
-             .attr("height", 500);
- 
- 
-         var bar1 = svg.append("rect")
-             .attr("fill", "blue")
-             .attr("x", 100)
-             .attr("y", 20)
-             .attr("height", 20)
-             .attr("width", 10)
- 
-         var bar2 = svg.append("rect")
-             .attr("fill", "blue")
-             .attr("x", 120)
-             .attr("y", 20)
-             .attr("height", 20)
-             .attr("width", 10)
- 
-         update();
- 
-         function update() {
-             bar1.transition()
-                 .ease(d3.easeLinear)
-                 .duration(2000)
-                 .attr("height", 100)
- 
-             bar2.transition()
-                 .ease(d3.easeLinear)
-                 .duration(2000)
-                 .delay(2000)
-                 .attr("height", 100)
-         }
- 
-         var width = 500;
-         var height = 500;
- 
-         //Create SVG element
-         var svg = d3.select("body")
-             .append("svg")
-             .attr("width", width)
-             .attr("height", height);
- 
-         //Create and append line
-         svg.append("line")
-             .attr("x1", 100)
-             .attr("x2", 500)
-             .attr("y1", 50)
-             .attr("y2", 250)
-             .attr("stroke", "black")
-             */
-        var svg = d3.select("#barChart"),
-            margin = { top: 20, right: 20, bottom: 30, left: 40 },
-            x = d3.scaleBand().padding(0.1),
-            y = d3.scaleLinear(),
-            theData = undefined;
+            /* var svg = d3.select("body")
+                 .append("svg")
+                 .attr("width", 500)
+                 .attr("height", 500);
+     
+     
+             var bar1 = svg.append("rect")
+                 .attr("fill", "blue")
+                 .attr("x", 100)
+                 .attr("y", 20)
+                 .attr("height", 20)
+                 .attr("width", 10)
+     
+             var bar2 = svg.append("rect")
+                 .attr("fill", "blue")
+                 .attr("x", 120)
+                 .attr("y", 20)
+                 .attr("height", 20)
+                 .attr("width", 10)
+     
+             update();
+     
+             function update() {
+                 bar1.transition()
+                     .ease(d3.easeLinear)
+                     .duration(2000)
+                     .attr("height", 100)
+     
+                 bar2.transition()
+                     .ease(d3.easeLinear)
+                     .duration(2000)
+                     .delay(2000)
+                     .attr("height", 100)
+             }
+     
+             var width = 500;
+             var height = 500;
+     
+             //Create SVG element
+             var svg = d3.select("body")
+                 .append("svg")
+                 .attr("width", width)
+                 .attr("height", height);
+     
+             //Create and append line
+             svg.append("line")
+                 .attr("x1", 100)
+                 .attr("x2", 500)
+                 .attr("y1", 50)
+                 .attr("y2", 250)
+                 .attr("stroke", "black")
+                 */
+            var svg = d3.select("#barChart"),
+                margin = { top: 20, right: 20, bottom: 30, left: 40 },
+                x = d3.scaleBand().padding(0.1),
+                y = d3.scaleLinear(),
+                theData = undefined;
 
-        var g = svg.append("g")
-            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+            var g = svg.append("g")
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-        g.append("g")
-            .attr("class", "axis axis--x");
+            var yBarGridGroup = g.append("g");
 
-        g.append("g")
-            .attr("class", "axis axis--y");
+            g.append("g")
+                .attr("class", "axis axis--x");
 
-        // DRAWING
+            g.append("g")
+                .attr("class", "axis axis--y");
 
-        function draw() {
+            // DRAWING
 
-            var bounds = svg.node().getBoundingClientRect(),
-                width = bounds.width - margin.left - margin.right,
-                height = bounds.height - margin.top - margin.bottom;
+            function draw() {
 
-            x.rangeRound([0, width]);
-            y.rangeRound([height, 0]);
+                // gridlines in y axis function
+                function makeYgridlines() {
+                    return d3.axisLeft(y)
+                        .ticks(5)
+                }
 
-            g.select(".axis--x")
-                .attr("transform", "translate(0," + height + ")")
-                .call(d3.axisBottom(x));
+                var bounds = svg.node().getBoundingClientRect(),
+                    width = bounds.width - margin.left - margin.right,
+                    height = bounds.height - margin.top - margin.bottom;
 
-            g.select(".axis--y")
-                .call(d3.axisLeft(y));
+                x.rangeRound([0, width]);
+                y.rangeRound([height, 0]);
 
-            var bars = g.selectAll(".bar")
+                yBarGridGroup.call(makeYgridlines()
+                    .tickSize(-width)
+                    .tickFormat("")
+                )
 
-                .data(theData);
+                g.select(".axis--x")
+                    .attr("transform", "translate(0," + height + ")")
+                    .call(d3.axisBottom(x));
 
-            // ENTER
-            bars
-                .enter().append("rect")
-                .attr("class", "bar")
-                .attr("x", function (d) { return x(d.week); })
-                .attr("y", function (d) { return y(d.trends); })
-                .attr("width", x.bandwidth())
-                .transition()
-                .ease(d3.easeSin)
-                .attr("height", function (d) { return height - y(d.trends); });
+                g.select(".axis--y")
+                    .call(d3.axisLeft(y));
 
-            // UPDATE
-            bars.attr("x", function (d) { return x(d.week); })
-                .attr("y", function (d) { return y(d.trends); })
-                .attr("width", x.bandwidth())
-                .attr("height", function (d) { return height - y(d.trends); });
+                var bars = g.selectAll(".bar")
 
-            // EXIT
-            bars.exit()
-                .remove();
+                    .data(theData);
 
-        }
+                // ENTER
+                bars
+                    .enter().append("rect")
+                    .attr("class", "bar")
+                    .attr("x", function (d) { return x(d.week); })
+                    .attr("y", function (d) { return y(d.trends); })
+                    .attr("width", x.bandwidth())
+                    .transition()
+                    .ease(d3.easeSin)
+                    .attr("height", function (d) { return height - y(d.trends); });
 
-        // LOADING DATA
+                // UPDATE
+                bars.attr("x", function (d) { return x(d.week); })
+                    .attr("y", function (d) { return y(d.trends); })
+                    .attr("width", x.bandwidth())
+                    .attr("height", function (d) { return height - y(d.trends); });
 
-        function loadData(tsvFile) {
-            theData = [{
+                // EXIT
+                bars.exit()
+                    .remove();
+
+            }
+
+            // LOADING DATA
+
+            function loadData(tsvFile) {
+                theData = [{
+                    "week": 1,
+                    "trends": 40
+                }, {
+                    "week": 2,
+                    "trends": 50
+                }, {
+                    "week": 3,
+                    "trends": 100
+                }, {
+                    "week": 4,
+                    "trends": 10
+                }, {
+                    "week": 5,
+                    "trends": 200
+                }, {
+                    "week": 6,
+                    "trends": 1000
+                }, {
+                    "week": 7,
+                    "trends": 450
+                }, {
+                    "week": 8,
+                    "trends": 750
+                }, {
+                    "week": 9,
+                    "trends": 800
+                }, {
+                    "week": 10,
+                    "trends": 900
+                }];
+
+                x.domain(theData.map(function (d) { return d.week; }));
+                y.domain([0, d3.max(theData, function (d) { return d.trends; })]);
+
+                draw();
+            }
+
+            window.addEventListener("resize", draw);
+            loadData("data.csv");
+
+            var lineData = undefined;
+            // set the dimensions and margins of the graph
+            var lineMargin = { top: 10, right: 30, bottom: 30, left: 60 };
+            var lineSvg = d3.select("#lineChart");
+            var lineInnerSvg = lineSvg.append("svg");
+            // Add the line
+            var lineGroup = lineInnerSvg.append("g");
+            var lineXGroup = lineGroup.append("g");
+            var lineYGroup = lineGroup.append("g");
+            var xGridGroup = lineGroup.append("g").attr("class", "grid");
+            var yGridGroup = lineGroup.append("g").attr("class", "grid");
+            var linePath = lineGroup.append("path");
+            var lineX = d3.scaleLinear();
+            var lineY = d3.scaleLinear();
+
+            lineGroup.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+            // Now I can use this dataset:
+            function drawLineChart() {
+                // gridlines in x axis function
+                function makeXgridlines() {
+                    return d3.axisBottom(lineX)
+                        .ticks(5)
+                }
+
+                // gridlines in y axis function
+                function makeYgridlines() {
+                    return d3.axisLeft(lineY)
+                        .ticks(5)
+                }
+
+                linePath.datum([]);
+
+                var bounds = lineSvg.node().getBoundingClientRect();
+                var width = bounds.width - lineMargin.left - lineMargin.right;
+                var height = bounds.height - lineMargin.top - lineMargin.bottom;
+
+                lineX.range([0, width]);
+                lineY.range([height, 0]);
+
+                xGridGroup.attr("transform", "translate(0," + height + ")").call(makeXgridlines()
+                    .tickSize(-height)
+                    .tickFormat("")
+                );
+                yGridGroup.call(makeYgridlines()
+                    .tickSize(-width)
+                    .tickFormat("")
+                )
+
+                lineXGroup
+                    .attr("transform", "translate(0," + height + ")")
+                    .call(d3.axisBottom(lineX));
+                lineYGroup
+                    .call(d3.axisLeft(lineY));
+
+                linePath
+                    .datum(lineData)
+                    .attr("fill", "none")
+                    .attr("stroke", "steelblue")
+                    .attr("stroke-width", 1.5)
+                    .attr("d", d3.line()
+                        .x(function (d) { return lineX(d.week) })
+                        .y(function (d) { return lineY(d.trends) })
+                    )
+
+            }
+
+            function loadDataForLineChart(data) {
+                lineData = data;
+
+                // Add X axis --> it is a date format
+                lineX.domain(d3.extent(lineData, function (d) { return d.week; }))
+
+                // Add Y axis
+                lineY.domain([0, d3.max(lineData, function (d) { return d.trends; })])
+
+                drawLineChart();
+            }
+
+            window.addEventListener("resize", drawLineChart);
+            loadDataForLineChart([{
                 "week": 1,
                 "trends": 40
             }, {
@@ -181,13 +318,13 @@
                 "trends": 100
             }, {
                 "week": 4,
-                "trends": 10
+                "trends": 250
             }, {
                 "week": 5,
                 "trends": 200
             }, {
                 "week": 6,
-                "trends": 1000
+                "trends": 3000
             }, {
                 "week": 7,
                 "trends": 450
@@ -200,108 +337,90 @@
             }, {
                 "week": 10,
                 "trends": 900
-            }];
-
-            x.domain(theData.map(function (d) { return d.week; }));
-            y.domain([0, d3.max(theData, function (d) { return d.trends; })]);
-
-            draw();
-        }
-
-        window.addEventListener("resize", draw);
-        loadData("data.csv");
-
-        var lineData = undefined;
-        // set the dimensions and margins of the graph
-        var lineMargin = { top: 10, right: 30, bottom: 30, left: 60 };
-        var lineSvg = d3.select("#lineChart");
-        var lineInnerSvg = lineSvg.append("svg");
-        // Add the line
-        var lineGroup = lineInnerSvg.append("g");
-        var lineXGroup = lineGroup.append("g");
-        var lineYGroup = lineGroup.append("g");
-        var linePath = lineGroup.append("path");
-        var lineX = d3.scaleLinear();
-        var lineY = d3.scaleLinear();
-
-        lineGroup.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-        // Now I can use this dataset:
-        function drawLineChart() {
-            linePath.datum([]);
-
-            var bounds = lineSvg.node().getBoundingClientRect();
-            var width = bounds.width - lineMargin.left - lineMargin.right;
-            var height = bounds.height - lineMargin.top - lineMargin.bottom;
-
-            lineX.range([0, width]);
-            lineY.range([height, 0]);
-
-            lineXGroup
-                .attr("transform", "translate(0," + height + ")")
-                .call(d3.axisBottom(lineX));
-            lineYGroup
-                .call(d3.axisLeft(lineY));
-
-            linePath
-                .datum(lineData)
-                .attr("fill", "none")
-                .attr("stroke", "steelblue")
-                .attr("stroke-width", 1.5)
-                .attr("d", d3.line()
-                    .x(function (d) { return lineX(d.week) })
-                    .y(function (d) { return lineY(d.trends) })
-                )
-
-        }
-
-        function loadDataForLineChart(data) {
-            lineData = data;
-
-            // Add X axis --> it is a date format
-            lineX.domain(d3.extent(lineData, function (d) { return d.week; }))
-
-            // Add Y axis
-            lineY.domain([0, d3.max(lineData, function (d) { return d.trends; })])
-
-            drawLineChart();
-        }
-
-        window.addEventListener("resize", drawLineChart);
-        loadDataForLineChart([{
-            "week": 1,
-            "trends": 40
-        }, {
-            "week": 2,
-            "trends": 50
-        }, {
-            "week": 3,
-            "trends": 100
-        }, {
-            "week": 4,
-            "trends": 10
-        }, {
-            "week": 5,
-            "trends": 200
-        }, {
-            "week": 6,
-            "trends": 1000
-        }, {
-            "week": 7,
-            "trends": 450
-        }, {
-            "week": 8,
-            "trends": 750
-        }, {
-            "week": 9,
-            "trends": 800
-        }, {
-            "week": 10,
-            "trends": 900
-        }]);
+            }]);
 
 
-    </script>
+
+            var doughNutData = undefined;
+            var doughNutSVG = d3.select('#doughNutChart').append("svg").style('height', '210px');
+            var doughNutGroup = doughNutSVG.append("g");
+            var doughNutMargin = { top: 10, right: 30, bottom: 30, left: 60 };
+            var doughNutColor = {
+                "Abulia": "#68DBC5",
+                "Betelgeuse": "#F1853D"
+            }
+
+            function drawDoughNut() {
+                var bounds = doughNutSVG.node().getBoundingClientRect();
+                var width = bounds.width - doughNutMargin.left - doughNutMargin.right;
+                var height = bounds.height - doughNutMargin.top - doughNutMargin.bottom;
+                var radius = Math.min(width, height) / 2;
+                var donutWidth = width * 0.2047;
+
+                doughNutSVG
+                    .attr('width', '100%')
+                    .attr('height', '100%');
+                doughNutSVG.attr('viewBox', (-(width) / 2) + ' ' + (-(height) / 2) + ' ' + width + ' ' + height)
+                    .attr('preserveAspectRatio', 'xMinYMin');
+
+                var arc = d3.arc()
+                    .innerRadius(radius - donutWidth)
+                    .outerRadius(radius);
+
+                var pie = d3.pie()
+                    .value(function (d) { return d.count; })
+                    .sort(null);
+
+                var path = doughNutSVG.selectAll('path')
+                    .data(pie(doughNutData))
+                    .enter()
+                    .append('path')
+                    .attr('d', arc)
+                    .attr('fill', function (d, i) {
+                        return doughNutColor[d.data.label];
+                    });
+
+                path.transition()
+                    .duration(1000)
+                    .attrTween('d', function (d) {
+                        var interpolate = d3.interpolate({ startAngle: 0, endAngle: 0 }, d);
+                        return function (t) {
+                            return arc(interpolate(t));
+                        };
+                    });
+
+                doughNutSVG.selectAll('text')
+                    .data(pie([]))
+
+                var text = doughNutSVG.selectAll('text')
+                    .data(pie(doughNutData))
+                    .enter()
+                    .append("text")
+                    .transition()
+                    .duration(1100)
+                    .attr("transform", function (d) {
+                        return "translate(" + arc.centroid(d) + ")";
+                    })
+                    .attr("text-anchor", "middle")
+                    .text(function (d) {
+                        return d.data.count;
+                    })
+                text.attr('fill', 'white');
+            }
+            function loadDataForDoughNut(data) {
+                doughNutData = data;
+                drawDoughNut();
+            }
+            loadDataForDoughNut([
+                { label: 'Abulia', count: 10 },
+                { label: 'Betelgeuse', count: 20 }
+            ]);
+            window.addEventListener('resize', drawDoughNut)
+
+
+
+
+        </script>
 </body>
 
 </html>
