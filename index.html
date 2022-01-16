@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- CSS only -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <!-- JavaScript Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
+        crossorigin="anonymous"></script>
+    <script src="./d3.min.js"></script>
+    <style>
+        text {
+            font-family: sans-serif;
+        }
+
+        .bar {
+            fill: cornflowerblue;
+        }
+
+        .bar:hover {
+            fill: pink;
+        }
+
+        .axis--x path {
+            display: none;
+        }
+
+        /*#barChart .axis.axis--x .tick {
+            display: none;
+        }*/
+    </style>
+</head>
+
+<body>
+    <!-- <div id="d3Div" style="height:300px;width:300px;background:yellow;">
+        <p>Test</p>
+    </div> -->
+    <div class="container-fluid">
+        <div class="row">
+
+            <div class="col-md-6">
+                <svg id="barChart" width="100%" height="500px"></svg>
+            </div>
+            <div class="col-md-6">
+                <svg id="lineChart" width="100%" height="500px"></svg>
+            </div>
+        </div>
+    </div>
+    <script>
+        /*d3.select('body').append('p').text('Test').style('color', 'red').style('color', function (d) {
+            //console.log(this);
+        })*/
+
+        //d3.select('#d3Div').transition().duration(1000).ease(d3.easeLinear).style('height', '500px').style('width', '500px');
+
+        /* var svg = d3.select("body")
+             .append("svg")
+             .attr("width", 500)
+             .attr("height", 500);
+ 
+ 
+         var bar1 = svg.append("rect")
+             .attr("fill", "blue")
+             .attr("x", 100)
+             .attr("y", 20)
+             .attr("height", 20)
+             .attr("width", 10)
+ 
+         var bar2 = svg.append("rect")
+             .attr("fill", "blue")
+             .attr("x", 120)
+             .attr("y", 20)
+             .attr("height", 20)
+             .attr("width", 10)
+ 
+         update();
+ 
+         function update() {
+             bar1.transition()
+                 .ease(d3.easeLinear)
+                 .duration(2000)
+                 .attr("height", 100)
+ 
+             bar2.transition()
+                 .ease(d3.easeLinear)
+                 .duration(2000)
+                 .delay(2000)
+                 .attr("height", 100)
+         }
+ 
+         var width = 500;
+         var height = 500;
+ 
+         //Create SVG element
+         var svg = d3.select("body")
+             .append("svg")
+             .attr("width", width)
+             .attr("height", height);
+ 
+         //Create and append line
+         svg.append("line")
+             .attr("x1", 100)
+             .attr("x2", 500)
+             .attr("y1", 50)
+             .attr("y2", 250)
+             .attr("stroke", "black")
+             */
+        var svg = d3.select("#barChart"),
+            margin = { top: 20, right: 20, bottom: 30, left: 40 },
+            x = d3.scaleBand().padding(0.1),
+            y = d3.scaleLinear(),
+            theData = undefined;
+
+        var g = svg.append("g")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+        g.append("g")
+            .attr("class", "axis axis--x");
+
+        g.append("g")
+            .attr("class", "axis axis--y");
+
+        // DRAWING
+
+        function draw() {
+
+            var bounds = svg.node().getBoundingClientRect(),
+                width = bounds.width - margin.left - margin.right,
+                height = bounds.height - margin.top - margin.bottom;
+
+            x.rangeRound([0, width]);
+            y.rangeRound([height, 0]);
+
+            g.select(".axis--x")
+                .attr("transform", "translate(0," + height + ")")
+                .call(d3.axisBottom(x));
+
+            g.select(".axis--y")
+                .call(d3.axisLeft(y));
+
+            var bars = g.selectAll(".bar")
+
+                .data(theData);
+
+            // ENTER
+            bars
+                .enter().append("rect")
+                .attr("class", "bar")
+                .attr("x", function (d) { return x(d.week); })
+                .attr("y", function (d) { return y(d.trends); })
+                .attr("width", x.bandwidth())
+                .transition()
+                .ease(d3.easeSin)
+                .attr("height", function (d) { return height - y(d.trends); });
+
+            // UPDATE
+            bars.attr("x", function (d) { return x(d.week); })
+                .attr("y", function (d) { return y(d.trends); })
+                .attr("width", x.bandwidth())
+                .attr("height", function (d) { return height - y(d.trends); });
+
+            // EXIT
+            bars.exit()
+                .remove();
+
+        }
+
+        // LOADING DATA
+
+        function loadData(tsvFile) {
+            theData = [{
+                "week": 1,
+                "trends": 40
+            }, {
+                "week": 2,
+                "trends": 50
+            }, {
+                "week": 3,
+                "trends": 100
+            }, {
+                "week": 4,
+                "trends": 10
+            }, {
+                "week": 5,
+                "trends": 200
+            }, {
+                "week": 6,
+                "trends": 1000
+            }, {
+                "week": 7,
+                "trends": 450
+            }, {
+                "week": 8,
+                "trends": 750
+            }, {
+                "week": 9,
+                "trends": 800
+            }, {
+                "week": 10,
+                "trends": 900
+            }];
+
+            x.domain(theData.map(function (d) { return d.week; }));
+            y.domain([0, d3.max(theData, function (d) { return d.trends; })]);
+
+            draw();
+        }
+
+        window.addEventListener("resize", draw);
+        loadData("data.csv");
+
+        var lineData = undefined;
+        // set the dimensions and margins of the graph
+        var lineMargin = { top: 10, right: 30, bottom: 30, left: 60 };
+        var lineSvg = d3.select("#lineChart");
+        var lineInnerSvg = lineSvg.append("svg");
+        // Add the line
+        var lineGroup = lineInnerSvg.append("g");
+        var lineXGroup = lineGroup.append("g");
+        var lineYGroup = lineGroup.append("g");
+        var linePath = lineGroup.append("path");
+        var lineX = d3.scaleLinear();
+        var lineY = d3.scaleLinear();
+
+        lineGroup.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+        // Now I can use this dataset:
+        function drawLineChart() {
+            linePath.datum([]);
+
+            var bounds = lineSvg.node().getBoundingClientRect();
+            var width = bounds.width - lineMargin.left - lineMargin.right;
+            var height = bounds.height - lineMargin.top - lineMargin.bottom;
+
+            lineX.range([0, width]);
+            lineY.range([height, 0]);
+
+            lineXGroup
+                .attr("transform", "translate(0," + height + ")")
+                .call(d3.axisBottom(lineX));
+            lineYGroup
+                .call(d3.axisLeft(lineY));
+
+            linePath
+                .datum(lineData)
+                .attr("fill", "none")
+                .attr("stroke", "steelblue")
+                .attr("stroke-width", 1.5)
+                .attr("d", d3.line()
+                    .x(function (d) { return lineX(d.week) })
+                    .y(function (d) { return lineY(d.trends) })
+                )
+
+        }
+
+        function loadDataForLineChart(data) {
+            lineData = data;
+
+            // Add X axis --> it is a date format
+            lineX.domain(d3.extent(lineData, function (d) { return d.week; }))
+
+            // Add Y axis
+            lineY.domain([0, d3.max(lineData, function (d) { return d.trends; })])
+
+            drawLineChart();
+        }
+
+        window.addEventListener("resize", drawLineChart);
+        loadDataForLineChart([{
+            "week": 1,
+            "trends": 40
+        }, {
+            "week": 2,
+            "trends": 50
+        }, {
+            "week": 3,
+            "trends": 100
+        }, {
+            "week": 4,
+            "trends": 10
+        }, {
+            "week": 5,
+            "trends": 200
+        }, {
+            "week": 6,
+            "trends": 1000
+        }, {
+            "week": 7,
+            "trends": 450
+        }, {
+            "week": 8,
+            "trends": 750
+        }, {
+            "week": 9,
+            "trends": 800
+        }, {
+            "week": 10,
+            "trends": 900
+        }]);
+
+
+    </script>
+</body>
+
+</html>
